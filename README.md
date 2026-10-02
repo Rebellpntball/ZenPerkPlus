@@ -1,43 +1,45 @@
 # ZenPerkPlus
 
-Optional add-on for [ZenSkills](https://github.com/ZenarchistCode/ZenSkills) that adds three broad skill trees:
+Optional add-on for [ZenSkills](https://github.com/ZenarchistCode/ZenSkills). Adds three **Zen-style** skill trees for a survivalist squad:
 
-| Skill | Focus |
-|-------|--------|
-| **firearms** | Weapon handling, jam/wear reduction, sidearm awareness, tactical zoom |
-| **combat_ops** | Kill EXP (infected / players / Expansion AI), combat radio static, recovery perks |
-| **driver** | Distance EXP, crash control, fuel/battery care (hooks partially reserved for future work) |
+| Role | Skill key | Focus |
+|------|-----------|--------|
+| **Gunner** | `firearms` | Run & gun (left) / marksman (right), jam & wear, sidearm ready |
+| **Operator** | `combat_ops` | Scout stamina & presence (left) / field medic speed (right), radio |
+| **Wheelman** | `driver` | Distance EXP, crash control, fuel/battery, getaway |
+
+Progression **stays in ZenSkills** (EXP spend, max perks, reset, refund). ZenPerkPlus only injects defs, awards EXP from actions, and applies gameplay effects. See `docs/DESIGN.md`.
 
 ## Requirements
 
-- DayZ server with **ZenModCore** and **ZenSkills**
+- DayZ with **ZenModCore** and **ZenSkills**
 - Optional: Expansion AI (`EXPANSIONMODAI`) for AI kill EXP and radio detection
 
 ## Installation
 
-1. Copy the `ZenPerkPlus` folder into your server mods directory.
-2. Add `@ZenPerkPlus` (or your packed PBO name) to the server `-mod=` list **after** ZenSkills.
-3. Restart the server. Config is generated under `profiles/ZenPerkPlus/` and synced to clients.
+1. Copy `ZenPerkPlus` into your server mods folder.
+2. Add it to `-mod=` **after** ZenSkills.
+3. Restart. Config: `profiles/ZenPerkPlus/` (synced to clients).
 
-## Config highlights
+## Config
 
-`ZenPerkPlus` JSON (server + client sync) exposes toggles and values for:
+`ZenPerkPlus` JSON controls **add-on** tuning only:
 
-- Skill enable flags (`EnableFirearmsSkill`, `EnableCombatOpsSkill`, `EnableDriverSkill`)
-- Firearm type lists (SMG / rifle / sniper / shotgun / pistol substrings)
-- Shot / kill EXP, jam & wear reduction
-- Combat radio range, cooldown, powered-radio requirement
-- Kill EXP amounts (infected, player, Expansion AI, animal)
-- Driver distance EXP and experimental vehicle toggles (many default off)
+- Enable each role tree
+- Firearm category lists, shot/kill EXP, jam/wear toggles
+- Combat radio range/cooldown, kill EXP amounts
+- Driver distance EXP and vehicle-related toggles
+
+Zen’s own JSON still controls perk cost, refund on reset, and global skill rules.
 
 ## Data migration
 
-Player DBs are updated **additively**: missing skill and perk entries for the three new trees are created without wiping existing progress.
+Additive: missing skill/perk entries for the three trees are created; existing Zen progress is not wiped.
 
-## GUI note
+## GUI
 
-ZenPerkPlus does **not** change ZenSkills layouts or images. New skills inject into data/EXP systems; full skill-button UI for add-on trees needs either an upstream ZenSkills UI hook or a separate ZenPerkPlus menu. See `docs/ZenSkillsGUICompatibility.md`.
+Zen’s stock menu does not list add-on skill buttons. Plan is a **PerkPlus tree UI** that reuses Zen tree images and the same slot grid. Until that ships, data and hooks still run; players need the future menu (or debug) to spend perks on these trees. See `docs/ZenSkillsGUICompatibility.md` and `docs/DESIGN.md`.
 
 ## License / authorship
 
-Originally structured as a PR against ZenSkills-style packaging. Runtime code depends on ZenSkills / ZenModCore APIs (`ZenConfigBase`, `GetZenSkillsPlugin`, `EEKilledZen`, etc.).
+Depends on ZenSkills / ZenModCore APIs. Pack and load as a separate mod after ZenSkills.
