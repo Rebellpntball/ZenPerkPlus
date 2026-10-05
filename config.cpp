@@ -1,7 +1,7 @@
 /*
 	ZenPerkPlus - optional ZenSkills add-on.
-	This is a separate mod source folder and does not edit or replace ZenSkills.
-	Expansion AI detection is optional and guarded by EXPANSIONMODAI.
+	Separate mod; does not edit ZenSkills source.
+	Progression control (unlock/reset/costs) stays in ZenSkills.
 */
 
 class CfgPatches
@@ -22,8 +22,9 @@ class CfgMods
 {
 	class ZenPerkPlus
 	{
-		author = "Zenarchist";
+		author = "ZenPerkPlus";
 		type = "mod";
+		inputs = "ZenPerkPlus/data/inputs.xml";
 		dependencies[] = { "Game", "World", "Mission" };
 		class defs
 		{
@@ -31,17 +32,17 @@ class CfgMods
 			{
 				value = "";
 				files[] = { "ZenPerkPlus/Scripts/3_Game" };
-			};
+			}
 			class worldScriptModule
 			{
 				value = "";
 				files[] = { "ZenPerkPlus/Scripts/4_World" };
-			};
+			}
 			class missionScriptModule
 			{
 				value = "";
 				files[] = { "ZenPerkPlus/Scripts/5_Mission" };
-			};
+			}
 		};
 	};
 };
