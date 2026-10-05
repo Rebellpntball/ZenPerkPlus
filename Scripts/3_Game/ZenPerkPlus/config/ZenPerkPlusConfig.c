@@ -78,13 +78,18 @@ class ZenPerkPlus: ZenConfigBase
 	float MasterDriverGripBoostPercent;
 	float MasterDriverSpeedBoostPercent;
 
+	float ScoutMaxStaminaDrainReduce;
+	float ScoutPostCombatBoostSeconds;
+	float ScoutPostCombatStaminaReturn;
+	float MedicMaxActionSpeedReduce;
+
 	override void OnRegistered()
 	{
 		g_ZenPerkPlusConfig = this;
 	}
 
 	override string GetFolderName() { return "ZenPerkPlus"; }
-	override string GetCurrentVersion() { return "2"; }
+	override string GetCurrentVersion() { return "3"; }
 	override bool ShouldLoadOnServer() { return true; }
 	override bool ShouldSyncToClient() { return true; }
 
@@ -100,7 +105,7 @@ class ZenPerkPlus: ZenConfigBase
 
 	override void SetDefaults()
 	{
-		ConfigVersion = 2;
+		ConfigVersion = 3;
 		EnableFirearmsSkill = true;
 		EnableCombatOpsSkill = true;
 		EnableDriverSkill = true;
@@ -184,5 +189,10 @@ class ZenPerkPlus: ZenConfigBase
 		EnableExperimentalVehicleGripAssist = false;
 		MasterDriverGripBoostPercent = 0;
 		MasterDriverSpeedBoostPercent = 0;
+
+		ScoutMaxStaminaDrainReduce = 0.40;
+		ScoutPostCombatBoostSeconds = 8;
+		ScoutPostCombatStaminaReturn = 15;
+		MedicMaxActionSpeedReduce = 0.40;
 	}
 }
