@@ -1,13 +1,23 @@
-modded class ActionBandageBase
+modded class ActionBandageSelfCB
 {
-	override float GetProgressTime(ActionData action_data)
+	override void CreateActionComponent()
 	{
-		float t = super.GetProgressTime(action_data);
-		if (!action_data || !action_data.m_Player)
-			return t;
-		PlayerBase player = PlayerBase.Cast(action_data.m_Player);
-		if (!player)
-			return t;
-		return t * ZenPerkPlusHelpers.GetMedicActionTimeMultiplier(player);
+		float t = UATimeSpent.BANDAGE;
+		PlayerBase player = PlayerBase.Cast(m_ActionData.m_Player);
+		if (player)
+			t = t * ZenPerkPlusHelpers.GetMedicActionTimeMultiplier(player);
+		m_ActionData.m_ActionComponent = new CAContinuousTime(t);
+	}
+}
+
+modded class ActionBandageTargetCB
+{
+	override void CreateActionComponent()
+	{
+		float t = UATimeSpent.BANDAGE;
+		PlayerBase player = PlayerBase.Cast(m_ActionData.m_Player);
+		if (player)
+			t = t * ZenPerkPlusHelpers.GetMedicActionTimeMultiplier(player);
+		m_ActionData.m_ActionComponent = new CAContinuousTime(t);
 	}
 }

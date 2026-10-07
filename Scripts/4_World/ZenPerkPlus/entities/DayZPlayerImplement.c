@@ -23,11 +23,11 @@ modded class DayZPlayerImplement
 
 modded class StaminaHandler
 {
-	override void DepleteStamina(float value, float drainCap = -1)
+	override void DepleteStaminaEx(EStaminaModifiers modifier, float dT = -1, float coeff = 1)
 	{
 		PlayerBase player = PlayerBase.Cast(m_Player);
 		if (player)
-			value = value * ZenPerkPlusHelpers.GetStaminaDrainMultiplier(player);
-		super.DepleteStamina(value, drainCap);
+			coeff = coeff * ZenPerkPlusHelpers.GetStaminaDrainMultiplier(player);
+		super.DepleteStaminaEx(modifier, dT, coeff);
 	}
 }
