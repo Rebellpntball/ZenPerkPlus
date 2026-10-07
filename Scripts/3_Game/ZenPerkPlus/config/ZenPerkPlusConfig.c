@@ -83,13 +83,15 @@ class ZenPerkPlus: ZenConfigBase
 	float ScoutPostCombatStaminaReturn;
 	float MedicMaxActionSpeedReduce;
 
+	bool UseCustomPerkIcons;
+
 	override void OnRegistered()
 	{
 		g_ZenPerkPlusConfig = this;
 	}
 
 	override string GetFolderName() { return "ZenPerkPlus"; }
-	override string GetCurrentVersion() { return "3"; }
+	override string GetCurrentVersion() { return "4"; }
 	override bool ShouldLoadOnServer() { return true; }
 	override bool ShouldSyncToClient() { return true; }
 
@@ -105,7 +107,7 @@ class ZenPerkPlus: ZenConfigBase
 
 	override void SetDefaults()
 	{
-		ConfigVersion = 3;
+		ConfigVersion = 4;
 		EnableFirearmsSkill = true;
 		EnableCombatOpsSkill = true;
 		EnableDriverSkill = true;
@@ -121,34 +123,15 @@ class ZenPerkPlus: ZenConfigBase
 		FirearmShotEXP = 1;
 		FirearmKillEXP = 20;
 		SMGTypes = new array<string>();
-		SMGTypes.Insert("mp5");
-		SMGTypes.Insert("ump");
-		SMGTypes.Insert("pp19");
-		SMGTypes.Insert("vikhr");
+		SMGTypes.Insert("mp5"); SMGTypes.Insert("ump"); SMGTypes.Insert("pp19"); SMGTypes.Insert("vikhr");
 		RifleTypes = new array<string>();
-		RifleTypes.Insert("ak");
-		RifleTypes.Insert("m4");
-		RifleTypes.Insert("fal");
-		RifleTypes.Insert("aug");
-		RifleTypes.Insert("sks");
+		RifleTypes.Insert("ak"); RifleTypes.Insert("m4"); RifleTypes.Insert("fal"); RifleTypes.Insert("aug"); RifleTypes.Insert("sks");
 		SniperTypes = new array<string>();
-		SniperTypes.Insert("svd");
-		SniperTypes.Insert("mosin");
-		SniperTypes.Insert("winchester");
-		SniperTypes.Insert("b95");
-		SniperTypes.Insert("m70");
+		SniperTypes.Insert("svd"); SniperTypes.Insert("mosin"); SniperTypes.Insert("winchester"); SniperTypes.Insert("b95"); SniperTypes.Insert("m70");
 		ShotgunTypes = new array<string>();
-		ShotgunTypes.Insert("shotgun");
-		ShotgunTypes.Insert("saiga");
-		ShotgunTypes.Insert("izh43");
-		ShotgunTypes.Insert("mp133");
+		ShotgunTypes.Insert("shotgun"); ShotgunTypes.Insert("saiga"); ShotgunTypes.Insert("izh43"); ShotgunTypes.Insert("mp133");
 		PistolTypes = new array<string>();
-		PistolTypes.Insert("ij70");
-		PistolTypes.Insert("fnx");
-		PistolTypes.Insert("cz75");
-		PistolTypes.Insert("glock");
-		PistolTypes.Insert("longhorn");
-		PistolTypes.Insert("magnum");
+		PistolTypes.Insert("ij70"); PistolTypes.Insert("fnx"); PistolTypes.Insert("cz75"); PistolTypes.Insert("glock"); PistolTypes.Insert("longhorn"); PistolTypes.Insert("magnum");
 		FirearmJamReductionEnabled = true;
 		FirearmWearReductionEnabled = true;
 
@@ -194,5 +177,7 @@ class ZenPerkPlus: ZenConfigBase
 		ScoutPostCombatBoostSeconds = 8;
 		ScoutPostCombatStaminaReturn = 15;
 		MedicMaxActionSpeedReduce = 0.40;
+
+		UseCustomPerkIcons = false;
 	}
 }
