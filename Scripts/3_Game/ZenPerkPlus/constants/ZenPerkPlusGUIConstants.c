@@ -1,5 +1,6 @@
 // Menu / input constants for the ZenPerkPlus tree UI.
 // Unlock and reset still go through ZenSkills RPCs.
+// Icon files follow latest ZenSkills (c1a9255): <skillKey>/<slot>_<level>.paa
 
 class ZenPerkPlusGUIConstants
 {

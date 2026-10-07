@@ -1,45 +1,37 @@
 # ZenPerkPlus
 
-Optional add-on for [ZenSkills](https://github.com/ZenarchistCode/ZenSkills). Adds three **Zen-style** skill trees for a survivalist squad:
+Optional add-on for [ZenSkills](https://github.com/ZenarchistCode/ZenSkills) **main `c1a9255` (2026-06-04)** / 1.29.
+
+Adds three **Zen-style** skill trees. Progression (EXP spend, max perks, reset, refund) stays in ZenSkills.
 
 | Role | Skill key | Focus |
 |------|-----------|--------|
-| **Gunner** | `firearms` | Run & gun (left) / marksman (right), jam & wear, sidearm ready |
-| **Operator** | `combat_ops` | Scout stamina & presence (left) / field medic speed (right), radio |
-| **Wheelman** | `driver` | Distance EXP, crash control, fuel/battery, getaway |
-
-Progression **stays in ZenSkills** (EXP spend, max perks, reset, refund). ZenPerkPlus only injects defs, awards EXP from actions, and applies gameplay effects. See `docs/DESIGN.md`.
+| **Gunner** | `firearms` | Run & gun / marksman, jam & wear |
+| **Operator** | `combat_ops` | Scout stamina / field medic, radio |
+| **Wheelman** | `driver` | Distance EXP, crash control |
 
 ## Requirements
 
-- DayZ with **ZenModCore** and **ZenSkills**
-- Optional: Expansion AI (`EXPANSIONMODAI`) for AI kill EXP and radio detection
+- DayZ 1.29+
+- **ZenModCore** + **ZenSkills** (requiredAddons)
+- Optional: Expansion AI (`EXPANSIONMODAI`)
 
-## Installation
-
-1. Copy `ZenPerkPlus` into your server mods folder.
-2. Add it to `-mod=` **after** ZenSkills.
-3. Restart. Config: `profiles/ZenPerkPlus/` (synced to clients).
-
-## Config
-
-`ZenPerkPlus` JSON controls **add-on** tuning only:
-
-- Enable each role tree
-- Firearm category lists, shot/kill EXP, jam/wear toggles
-- Combat radio range/cooldown, kill EXP amounts
-- Driver distance EXP and vehicle-related toggles
-
-Zen’s own JSON still controls perk cost, refund on reset, and global skill rules.
-
-## Data migration
-
-Additive: missing skill/perk entries for the three trees are created; existing Zen progress is not wiped.
+Load **after** ZenSkills in `-mod=`.
 
 ## GUI
 
-Zen’s stock menu does not list add-on skill buttons. Plan is a **PerkPlus tree UI** that reuses Zen tree images and the same slot grid. Until that ships, data and hooks still run; players need the future menu (or debug) to spend perks on these trees. See `docs/ZenSkillsGUICompatibility.md` and `docs/DESIGN.md`.
+- **I** (rebind under ZEN) opens the PerkPlus tree.
+- **U** stays vanilla Zen (survival/crafting/hunting/gathering). Add-on keys are yanked during that Init so missing widgets cannot NRE.
+- Nodes reuse Zen tree background + hunting/gathering/crafting perk `.paa` until you copy/rename files (see `data/gui/images/README.md` and `UseCustomPerkIcons`).
 
-## License / authorship
+Unlock/reset use `RPC_ServerReceive_PerkUnlock` / `PerkReset`. The PerkPlus menu extends `ZenSkillsGUIBase` so the plugin can refresh it.
 
-Depends on ZenSkills / ZenModCore APIs. Pack and load as a separate mod after ZenSkills.
+## Config
+
+`profiles/ZenPerkPlus/` (synced). New: `UseCustomPerkIcons` (default false).
+
+Effect magnitudes (jam, stamina, bandage, crash) live here. EXP **cost** lives in ZenSkills JSON.
+
+## Data
+
+Additive DB migration only. Existing Zen progress is kept.

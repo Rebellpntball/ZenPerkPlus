@@ -1,29 +1,53 @@
-# ZenSkills GUI compatibility notes
+# ZenSkills GUI compatibility (aligned to ZenSkills `c1a9255`, 2026-06-04)
 
-ZenPerkPlus does not modify ZenSkills layout or image files.
+Target: **ZenSkills main @ c1a9255** (“Fixed ZenModCore compatibility”) + 1.29 (`5d30f5d`).
 
-Inspection findings:
+## What latest Zen changed (PerkPlus must match)
 
-- Skill button widgets are fixed in `ZenSkills/data/gui/layouts/zen_skills_menu.layout` and currently exist for the original ZenSkills skills only: `Survival`, `Crafting`, `Hunting`, and `Gathering`.
-- `ZenSkillsGUI.OnInit()` loops over every entry in the player DB and derives widget names from the skill key with `ZenSkillFunctions.FirstLetterUppercase(skillKey)`, then looks up `<SkillName>ButtonImage`, `<SkillName>Label`, `<SkillName>ButtonPerks`, and `<SkillName>Progress`.
-- Skill icon paths are derived from that same generated label as `ZenSkills/data/gui/images/skill_<SkillName>.edds`.
-- Perk icon paths are derived from the selected skill key and slot/level as `ZenSkills/data/gui/images/<skillKey>/<slot>_<level>.paa`.
-- Perk node widgets themselves are generic fixed widgets (`PerkIcon1_1` through `PerkIcon4_2`), but the image files loaded into them are skill-key-specific.
+| Change | PerkPlus handling |
+|--------|-------------------|
+| `ZenSkillsGUI extends ZenSkillsGUIBase` | Our menu **extends ZenSkillsGUIBase** and implements `ForceUpdateFromServer(int)` so unlock RPCs refresh the open PerkPlus page |
+| `ZenMissionFunctions.Freeze/UnfreezePlayerControls()` | Used in PerkPlus `OnShow` / `OnHide` |
+| `GetZenModCoreConfig` → `GetZenCoreConfig` | Not used by PerkPlus |
+| GUI still loops **all** `db.Skills` and `LoadImageFile` with **no null check** | **Yank** `firearms` / `combat_ops` / `driver` during stock U + highscores `Init`, then restore. `UpdateSkillPerkLabels` skips add-on keys |
+| Perk icons `ZenSkills/data/gui/images/<skillKey>/<slot>_<level>.paa` | PerkPlus `LoadImageFile`s the same pattern. Default **reuses** Zen `hunting` / `gathering` / `crafting` folders |
+| Tab `skill_<FirstLetterUppercase>.edds` | Mapped to `skill_Hunting` / `Gathering` / `Crafting` until custom icons exist |
+| HUD `skill_<skillKey>.edds` (lowercase) | HUD `ZenShowPerk` remaps add-on keys |
 
-Impact for injected skills:
+## Image rename (when you ship custom art)
 
-- A new skill key such as `radio_operator` would look for widgets like `Radio_operatorButtonImage`, which do not exist in the stock ZenSkills layout.
-- Adding a ZenPerkPlus imageset alone cannot make those missing widgets exist or change ZenSkills' hardcoded `ZenSkills/data/gui/images/...` load paths.
-- Until ZenSkills exposes a UI extension/fallback hook, ZenPerkPlus should leave existing ZenSkills image/layout files intact. The add-on can safely inject data definitions and migrate DBs, but a full visible button grid for the added skills needs either an upstream ZenSkills UI extension point or a separate ZenPerkPlus-owned UI.
+Copy Zen’s slot files, **keep filenames**, change folder names:
 
-Future compatible options:
+```
+ZenSkills/data/gui/images/hunting/1_1_0.paa … 4_2_3.paa
+  -> ZenPerkPlus/data/gui/images/firearms/
 
-1. Add an upstream ZenSkills GUI fallback hook that lets add-ons provide skill buttons and icon paths.
-2. Add a separate ZenPerkPlus UI page/menu for add-on skills.
-3. Add ZenPerkPlus-owned layout and imageset assets only if ZenSkills can load them without editing ZenSkills source files. For v1, do not register a ZenPerkPlus imageset because the current ZenSkills GUI does not consume add-on image sets for skill buttons or perk icon path resolution.
+ZenSkills/data/gui/images/gathering/…
+  -> ZenPerkPlus/data/gui/images/combat_ops/
 
-## Deprecated test skill keys
+ZenSkills/data/gui/images/crafting/…
+  -> ZenPerkPlus/data/gui/images/driver/
+```
 
-Earlier ZenPerkPlus test builds injected eight narrow skill keys (`radio_operator`, `field_medic`, `engineer`, `tactics`, `smg`, `rifle`, `sniper`, and `shotgun`). Current v1 builds only create the broad Zen-style trees `firearms`, `combat_ops`, and `driver`.
+Tab / HUD (both casings — Zen is inconsistent):
 
-ZenPerkPlus intentionally does not wipe generated ZenSkills configs or player DBs. If a test server already generated a ZenSkills config containing the deprecated narrow test skills, remove those deprecated skill definitions manually or regenerate the test ZenSkills config before release. Existing player DB migration remains additive only and does not erase progress.
+```
+skill_Firearms.edds  (U-style FirstLetterUppercase)
+skill_firearms.edds  (HUD lowercase)
+skill_Combat_ops.edds / skill_combat_ops.edds
+skill_Driver.edds / skill_driver.edds
+```
+
+Then set `UseCustomPerkIcons = true` in the synced ZenPerkPlus JSON.
+
+Until that flag is on, nodes load Zen’s hunting/gathering/crafting `.paa` so the tree is not blank.
+
+## Stock U menu
+
+PerkPlus skills stay **off** the U page on purpose (no `FirearmsButtonImage` widgets). Spend them on the PerkPlus tree (default **I**). Reset/unlock still go through Zen RPCs.
+
+## 1.29 gameplay hooks
+
+- Stamina: `StaminaHandler.DepleteStaminaEx(EStaminaModifiers, dT, coeff)`
+- Bandage: `ActionBandageSelfCB` / `ActionBandageTargetCB` `CAContinuousTime`
+- Vehicle driver: `CarScript.CrewMember(0)`
