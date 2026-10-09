@@ -57,7 +57,7 @@ modded class Weapon_Base
 			return;
 		if (!ZenPerkPlus_IsPrimaryDry())
 			return;
-		ZenPerkPlusHelpers.Notify(player, "Sidearm Ready", "Primary dry \u2014 check your loaded sidearm.");
+		ZenPerkPlusHelpers.Notify(player, "Sidearm Ready", "Primary dry - check your loaded sidearm.");
 		#endif
 	}
 
