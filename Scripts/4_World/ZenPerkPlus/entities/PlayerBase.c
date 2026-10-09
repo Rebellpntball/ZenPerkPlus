@@ -91,6 +91,7 @@ modded class PlayerBase
 	protected float m_ZenPerkPlusCombatBoostUntil;
 	protected vector m_ZenPerkPlusLastDrivePos;
 	protected float m_ZenPerkPlusDriveAccumMeters;
+	protected float m_ZenPerkPlusContactScan;
 
 	override void EEKilledZen(notnull Object killer)
 	{
@@ -136,12 +137,112 @@ modded class PlayerBase
 		return (g_Game.GetTime() * 0.001) < m_ZenPerkPlusCombatBoostUntil;
 	}
 
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		float hpBefore = GetHealth("", "Health");
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		#ifdef SERVER
+		ZenPerkPlus_RefundDriverImpact(hpBefore, ammo);
+		#endif
+	}
+
+	void ZenPerkPlus_RefundDriverImpact(float hpBefore, string ammo)
+	{
+		if (!IsAlive() || !GetCommand_Vehicle())
+			return;
+		string low = ammo;
+		low.ToLower();
+		bool crash = low.Contains("crash") || low.Contains("transport") || low.Contains("vehicle") || low.Contains("fall");
+		if (!crash)
+			return;
+		float refund = ZenPerkPlusHelpers.GetPlayerCrashRefund(this);
+		float lost = hpBefore - GetHealth("", "Health");
+		if (refund > 0 && lost > 0)
+			AddHealth("", "Health", lost * refund);
+	}
+
 	override void OnScheduledTick(float deltaTime)
 	{
 		super.OnScheduledTick(deltaTime);
 		#ifdef SERVER
 		ZenPerkPlus_UpdateDriverDistance(deltaTime);
+		ZenPerkPlus_UpdateShock(deltaTime);
+		ZenPerkPlus_UpdateAIContact(deltaTime);
 		#endif
+	}
+
+	void ZenPerkPlus_UpdateShock(float deltaTime)
+	{
+		float per = ZenPerkPlusHelpers.GetShockPerSecond(this);
+		if (per <= 0 || deltaTime <= 0)
+			return;
+		float maxShock = GetMaxHealth("", "Shock");
+		if (maxShock <= 0)
+			return;
+		float cur = GetHealth("", "Shock");
+		if (cur >= maxShock * 0.85)
+			return;
+		AddHealth("", "Shock", per * deltaTime);
+	}
+
+	void ZenPerkPlus_UpdateAIContact(float deltaTime)
+	{
+		m_ZenPerkPlusContactScan -= deltaTime;
+		if (m_ZenPerkPlusContactScan > 0)
+			return;
+		ZenPerkPlus cfg = GetZenPerkPlusConfig();
+		if (!cfg || !cfg.EnableCombatOpsSkill || !cfg.EnableAIContactPing)
+		{
+			m_ZenPerkPlusContactScan = 8;
+			return;
+		}
+		float ghost = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_GHOST_PACE);
+		float step = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_LIGHT_STEP);
+		if (ghost <= 0 && step <= 0)
+		{
+			m_ZenPerkPlusContactScan = 6;
+			return;
+		}
+		float range = cfg.AIContactPingRangeMeters;
+		if (range <= 0)
+			range = 45;
+		range = Math.Clamp(range * (0.55 + ghost + step * 0.35), 12, 75);
+		array<Object> objs = new array<Object>;
+		array<CargoBase> cargos = new array<CargoBase>;
+		g_Game.GetObjectsAtPosition3D(GetPosition(), range, objs, cargos);
+		Object nearest;
+		float best = range + 1;
+		int checked = 0;
+		foreach (Object obj : objs)
+		{
+			checked++;
+			if (checked > 80)
+				break;
+			if (!ZenPerkPlusHelpers.IsTrackedHostileAI(obj, this))
+				continue;
+			EntityAI ent = EntityAI.Cast(obj);
+			if (!ent || !ent.IsAlive())
+				continue;
+			float dist = vector.Distance(GetPosition(), obj.GetPosition());
+			if (dist < best)
+			{
+				best = dist;
+				nearest = obj;
+			}
+		}
+		float cd = cfg.AIContactPingCooldownSeconds;
+		if (cd < 8)
+			cd = 22;
+		m_ZenPerkPlusContactScan = cd;
+		if (!nearest)
+			return;
+		string bucket = "Far";
+		if (best < 15)
+			bucket = "Close";
+		else if (best < 32)
+			bucket = "Near";
+		string bearing = ZenPerkPlusHelpers.RoughBearing(this, nearest.GetPosition());
+		ZenPerkPlusHelpers.Notify(this, "Contact", bucket + " hostile " + bearing + ".");
 	}
 
 	void ZenPerkPlus_UpdateDriverDistance(float deltaTime)

@@ -83,6 +83,22 @@ class ZenPerkPlus: ZenConfigBase
 	float ScoutPostCombatStaminaReturn;
 	float MedicMaxActionSpeedReduce;
 
+	bool EnableWeaponHandling;
+	float MaxSwayReduce;
+	float MaxRecoilReduce;
+	bool EnableLightStep;
+	float MaxNoiseReduce;
+	bool EnableStayWithMe;
+	float MedicShockPerSecond;
+	bool EnableAIContactPing;
+	float AIContactPingRangeMeters;
+	float AIContactPingCooldownSeconds;
+	float FuelSaveMaxFraction;
+	float BatteryCareEnergyPerSecond;
+	int DriverRepairEXP;
+	bool EnableDeadeyeZoom;
+	float SoftHandsHealthRefund;
+
 	bool UseCustomPerkIcons;
 
 	override void OnRegistered()
@@ -177,6 +193,22 @@ class ZenPerkPlus: ZenConfigBase
 		ScoutPostCombatBoostSeconds = 8;
 		ScoutPostCombatStaminaReturn = 15;
 		MedicMaxActionSpeedReduce = 0.40;
+
+		EnableWeaponHandling = true;
+		MaxSwayReduce = 0.28;
+		MaxRecoilReduce = 0.22;
+		EnableLightStep = true;
+		MaxNoiseReduce = 0.30;
+		EnableStayWithMe = true;
+		MedicShockPerSecond = 1.25;
+		EnableAIContactPing = true;
+		AIContactPingRangeMeters = 45;
+		AIContactPingCooldownSeconds = 22;
+		FuelSaveMaxFraction = 0.18;
+		BatteryCareEnergyPerSecond = 0.35;
+		DriverRepairEXP = 10;
+		EnableDeadeyeZoom = true;
+		SoftHandsHealthRefund = 0.35;
 
 		UseCustomPerkIcons = false;
 	}

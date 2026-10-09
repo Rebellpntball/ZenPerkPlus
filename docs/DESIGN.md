@@ -67,16 +67,15 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 - Unlock / reset call Zen `RPC_ServerReceive_PerkUnlock` / `PerkReset`
 - Add-on keys are yanked during stock U + highscores Init so missing widgets cannot NRE
 
-## Out of scope (v1)
+## Out of scope
 
 - Double-jump / unlimited sprint
 - Damage multipliers that break vanilla guns
 - Engineer as a fourth tree
-- Full footstep ESP / animals permanently ignore player
-- ADS sway, recoil climb, footstep volume, shock regen
-- Fuel saver, battery care, vehicle speed, auto sidearm swap (config flags exist, not hooked)
-- Field-mechanic repair EXP (action key exists, no repair hook yet)
-- Deadeye does not add a real zoom; sprint-zoom stays off unless rewritten later
+- Skeleton ESP, dead-AI skulls, sonar canvas (that stays on the glasses item mod)
+- Animals hard-ignoring the player (Light Step only cuts noise, Terje-style)
+- Vehicle speed / grip boosts (flags stay off; they desync)
+- Auto sidearm swap and free ammo
 
 ## What actually plays in v1
 
@@ -89,7 +88,15 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Scout stamina | `DepleteStaminaEx` drain cut + short post-kill return |
 | Faster bandages | `ActionBandageSelfCB` / `TargetCB` |
 | Drive distance EXP | Driver seat distance accumulator |
-| Softer crashes | Vehicle HP refund while you drive |
+| Softer crashes | Vehicle HP refund + Soft Hands health refund on crash ammo |
+| Less sway / recoil | Aim filter offsets + `RecoilBase.Update`, capped |
+| Quieter steps | `AddNoise` multiplier (infected/animals hear less, they still see you) |
+| Shock recovery | Slow shock regen from Stay With Me / Combat Medic |
+| Faster splints | `ActionSplint*CB` |
+| Fuel / battery | Refund a slice of fuel burned; trickle battery energy |
+| Engine repair EXP | `ActionRepairCarEngine` |
+| Deadeye | Shallow ADS zoom while holding zoom. Not a scope. |
+| AI contact | Scout text ping (ahead/behind/side, close/near/far). No wallhack. |
 
 ## Implementation status
 
@@ -104,4 +111,5 @@ Aligned to ZenSkills **main `c1a9255` (2026-06-04)**. No newer ZenSkills commit 
 | Jam, wear, stamina, bandage, crash, radio, distance EXP | Done |
 | Animal kill EXP | Done |
 | Custom perk art | Optional (`UseCustomPerkIcons`) |
-| Sway / noise / fuel / battery / repair EXP / real zoom | Not in v1 |
+| Sway, recoil, noise, shock, splint, fuel, battery, repair EXP, deadeye zoom, AI contact ping | Done, capped |
+| Skeleton ESP / vehicle speed / auto-swap / free ammo | Not in this mod |

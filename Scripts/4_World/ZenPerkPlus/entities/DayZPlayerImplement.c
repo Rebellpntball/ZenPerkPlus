@@ -4,20 +4,27 @@ modded class DayZPlayerImplement
 	{
 		super.HandleView();
 		ZenPerkPlus cfg = GetZenPerkPlusConfig();
-		if (!cfg || !cfg.EnableFirearmsSkill || !cfg.EnableSprintZoom)
+		if (!cfg || !cfg.EnableFirearmsSkill || !cfg.EnableDeadeyeZoom)
 			return;
 		PlayerBase player = PlayerBase.Cast(this);
 		if (!player)
 			return;
 		if (player.GetZenPerkReward(ZenPerkPlusSkills.FIREARMS, ZenPerkPlusPerks.FIREARMS_DEADEYE) <= 0)
 			return;
-		HumanInputController hic = GetInputController();
-		if (!hic)
+		if (!m_MovementState.IsRaised())
 			return;
-		if (!m_MovementState.IsRaised() && hic.IsZoomToggle())
-		{
-			m_CameraEyeZoomLevel = ECameraZoomType.NORMAL;
-		}
+		HumanInputController hic = GetInputController();
+		if (!hic || !hic.IsZoomToggle())
+			return;
+		m_CameraEyeZoomLevel = ECameraZoomType.SHALLOW;
+	}
+
+	override void AddNoise(NoiseParams noisePar, float noiseMultiplier = 1.0)
+	{
+		PlayerBase player = PlayerBase.Cast(this);
+		if (player)
+			noiseMultiplier = noiseMultiplier * ZenPerkPlusHelpers.GetNoiseMultiplier(player);
+		super.AddNoise(noisePar, noiseMultiplier);
 	}
 }
 
