@@ -18,6 +18,7 @@ Hunter / tracker fantasy stays on **ZenSkills Hunting**. PerkPlus does not repla
 - Injected defs use the same slot IDs as Zen (`1_1` … `4_2`)
 - Default `MaxAllowedPerks = 8` on add-on trees so players specialize (left vs right)
 - Server can still raise costs via Zen skill JSON after load
+- Baseline `1_1` nodes (Weapon Familiar / Ops Training / Driver Training) use Zen's built-in perk EXP boost
 
 ## Config split
 
@@ -26,9 +27,9 @@ Hunter / tracker fantasy stays on **ZenSkills Hunting**. PerkPlus does not repla
 | **ZenSkills** | Unlock cost, refund, reset, player DB |
 | **ZenPerkPlusConfig** | Enable flags, EXP award amounts, effect magnitudes, radio/driver toggles |
 
-## Tree layout (reuse Zen tree art)
+## Tree layout
 
-Same grid as Zen. Own menu later should clone Zen layout and reuse `skill_background_tree` / node chrome.
+Same grid as Zen. Own menu (`I`) clones the tree and reuses `skill_background_tree` plus hunting / gathering / crafting node art until `UseCustomPerkIcons`.
 
 ### Gunner (`firearms`)
 
@@ -39,9 +40,9 @@ Same grid as Zen. Own menu later should clone Zen layout and reuse `skill_backgr
 1  [ Weapon Familiar][ Hip Ready ]    [ Steady Grip ]
 ```
 
-- **Left:** Run & Gun  
-- **Right:** Marksman  
-- **Shared:** Familiar, Sidearm Ready, Field Maintenance  
+- **Left:** Run & Gun
+- **Right:** Marksman
+- **Shared:** Familiar, Sidearm Ready, Field Maintenance
 
 ### Operator (`combat_ops`)
 
@@ -52,8 +53,8 @@ Same grid as Zen. Own menu later should clone Zen layout and reuse `skill_backgr
 1  [ Ops Training ]   [ Second Wind ]     [ Quick Wrap ]
 ```
 
-- **Left:** Scout (stamina / quiet — not infinite sprint)  
-- **Right:** Field Medic (faster care — not full medical overhaul)  
+- **Left:** Scout (stamina — not infinite sprint)
+- **Right:** Field Medic (faster bandage — not a medical overhaul)
 
 ### Wheelman (`driver`)
 
@@ -62,23 +63,45 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 ## UI
 
 - Stock Zen GUI **cannot** show new skill tabs (hardcoded buttons)
-- Plan: **ZenPerkPlus menu** that reuses Zen tree images and the same perk grid widgets
-- Reset button must call **Zen** reset for that skill key (no second economy)
+- **ZenPerkPlus menu** (default **I**) reuses Zen tree art and the same perk grid
+- Unlock / reset call Zen `RPC_ServerReceive_PerkUnlock` / `PerkReset`
+- Add-on keys are yanked during stock U + highscores Init so missing widgets cannot NRE
 
 ## Out of scope (v1)
 
-- Double-jump / unlimited sprint  
-- Damage multipliers that break vanilla guns  
-- Engineer as a fourth tree  
-- Full footstep ESP / animals permanently ignore player  
+- Double-jump / unlimited sprint
+- Damage multipliers that break vanilla guns
+- Engineer as a fourth tree
+- Full footstep ESP / animals permanently ignore player
+- ADS sway, recoil climb, footstep volume, shock regen
+- Fuel saver, battery care, vehicle speed, auto sidearm swap (config flags exist, not hooked)
+- Field-mechanic repair EXP (action key exists, no repair hook yet)
+- Deadeye does not add a real zoom; sprint-zoom stays off unless rewritten later
+
+## What actually plays in v1
+
+| Feel | Hook |
+|------|------|
+| Shot / firearm kill EXP | `Weapon_Base.EEFired`, kill handler |
+| Fewer jams, slower wear | `GetChanceToJam`, small durability refund |
+| Sidearm ping | Only when the perk is owned **and** the gun is dry |
+| Kill EXP + radio static | Player / infected / animal / Expansion AI `EEKilledZen`, powered radio |
+| Scout stamina | `DepleteStaminaEx` drain cut + short post-kill return |
+| Faster bandages | `ActionBandageSelfCB` / `TargetCB` |
+| Drive distance EXP | Driver seat distance accumulator |
+| Softer crashes | Vehicle HP refund while you drive |
 
 ## Implementation status
 
+Aligned to ZenSkills **main `c1a9255` (2026-06-04)**. No newer ZenSkills commit since that.
+
 | Piece | Status |
 |-------|--------|
-| Config + sync | Done |
-| Skill/EXP injection (role names) | Updated this pass |
-| DB migration | Done |
-| Weapon / kill / radio hooks | Partial (legacy perk IDs still valid via aliases) |
-| Own tree UI + reused art | Next |
-| Scout stamina / medic action speed / driver crash feel | Next gameplay pass |
+| Config + sync (v4, `UseCustomPerkIcons`) | Done |
+| Skill / EXP injection, MaxAllowedPerks 8 | Done |
+| Additive DB migration | Done |
+| Own tree UI + Zen RPCs + GUI yank | Done |
+| Jam, wear, stamina, bandage, crash, radio, distance EXP | Done |
+| Animal kill EXP | Done |
+| Custom perk art | Optional (`UseCustomPerkIcons`) |
+| Sway / noise / fuel / battery / repair EXP / real zoom | Not in v1 |

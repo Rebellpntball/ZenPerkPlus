@@ -48,15 +48,28 @@ modded class Weapon_Base
 	{
 		#ifdef SERVER
 		ZenPerkPlus cfg = GetZenPerkPlusConfig();
-		if (!cfg || cfg.EnableAutoSidearmSwap)
+		if (!cfg || !cfg.EnableFirearmsSkill || cfg.EnableAutoSidearmSwap)
 			return;
 		PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
 		if (!player)
 			return;
 		if (player.GetZenPerkReward(ZenPerkPlusSkills.FIREARMS, ZenPerkPlusPerks.FIREARMS_SIDEARM_READY) <= 0)
 			return;
-		ZenPerkPlusHelpers.Notify(player, "Sidearm Ready", "Primary dry — check your loaded sidearm.");
+		if (!ZenPerkPlus_IsPrimaryDry())
+			return;
+		ZenPerkPlusHelpers.Notify(player, "Sidearm Ready", "Primary dry \u2014 check your loaded sidearm.");
 		#endif
+	}
+
+	bool ZenPerkPlus_IsPrimaryDry()
+	{
+		int muzzle = GetCurrentMuzzle();
+		if (IsChamberFull(muzzle))
+			return false;
+		Magazine mag = GetMagazine(muzzle);
+		if (mag && mag.GetAmmoCount() > 0)
+			return false;
+		return true;
 	}
 
 	override float GetChanceToJam()
