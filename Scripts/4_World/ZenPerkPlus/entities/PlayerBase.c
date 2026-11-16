@@ -1,3 +1,65 @@
+// Same idea as a proximity radio: track living PlayerBase (real players and eAI).
+// Infected and animals are not PlayerBase, so they never trip the static.
+// Only a vague line is sent. Never a position, range number, or direction.
+class ZenPerkPlusRadioWatch
+{
+	protected static ref array<PlayerBase> s_Men;
+
+	static void Register(PlayerBase man)
+	{
+		if (!s_Men)
+			s_Men = new array<PlayerBase>;
+		if (man && s_Men.Find(man) == -1)
+			s_Men.Insert(man);
+	}
+
+	static void Unregister(PlayerBase man)
+	{
+		if (!s_Men || !man)
+			return;
+		int idx = s_Men.Find(man);
+		if (idx != -1)
+			s_Men.Remove(idx);
+	}
+
+	static bool NearestInRange(PlayerBase owner, float range, out bool outIsPlayer)
+	{
+		outIsPlayer = false;
+		if (!s_Men || !owner || range <= 0)
+			return false;
+		ZenPerkPlus cfg = GetZenPerkPlusConfig();
+		if (!cfg)
+			return false;
+		vector pos = owner.GetPosition();
+		float best = range * range;
+		bool found = false;
+		for (int i = s_Men.Count() - 1; i >= 0; i--)
+		{
+			PlayerBase man = s_Men[i];
+			if (!man)
+			{
+				s_Men.Remove(i);
+				continue;
+			}
+			if (man == owner || !man.IsAlive())
+				continue;
+			bool isPlayer = man.GetIdentity() != null;
+			if (isPlayer && !cfg.CombatRadioDetectPlayers)
+				continue;
+			if (!isPlayer && !cfg.CombatRadioDetectExpansionAI)
+				continue;
+			float d2 = vector.DistanceSq(pos, man.GetPosition());
+			if (d2 <= best)
+			{
+				best = d2;
+				found = true;
+				outIsPlayer = isPlayer;
+			}
+		}
+		return found;
+	}
+}
+
 static void ZenPerkPlus_HandleKilledEntity(EntityAI deadEntity, Object killer)
 {
 	#ifdef SERVER
@@ -45,7 +107,6 @@ static void ZenPerkPlus_HandleKilledEntity(EntityAI deadEntity, Object killer)
 	else
 		player.AddZenSkillEXP(ZenPerkPlusSkills.COMBAT_OPS, cfg.AnimalKillCombatOpsEXP);
 
-	ZenPerkPlus_TryCombatRadioStatic(player, deadEntity, true, false);
 	ZenPerkPlus_AwardFirearmKillEXP(player, killerEntity, cfg);
 	player.ZenPerkPlus_OnCombatKill();
 	#endif
@@ -67,6 +128,8 @@ static void ZenPerkPlus_TryCombatRadioStatic(PlayerBase player, EntityAI deadEnt
 	#ifdef SERVER
 	ZenPerkPlus cfg = GetZenPerkPlusConfig();
 	if (!cfg || !cfg.EnableCombatRadioStatic || !player || !deadEntity)
+		return;
+	if (player.GetZenPerkReward(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_RADIO_DISCIPLINE) <= 0)
 		return;
 	if (isPlayerThreat && !cfg.CombatRadioDetectPlayers)
 		return;
@@ -92,6 +155,20 @@ modded class PlayerBase
 	protected vector m_ZenPerkPlusLastDrivePos;
 	protected float m_ZenPerkPlusDriveAccumMeters;
 	protected float m_ZenPerkPlusContactScan;
+
+	override void EEInit()
+	{
+		super.EEInit();
+		if (GetGame().IsServer())
+			ZenPerkPlusRadioWatch.Register(this);
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		if (GetGame().IsServer())
+			ZenPerkPlusRadioWatch.Unregister(this);
+		super.EEDelete(parent);
+	}
 
 	override void EEKilledZen(notnull Object killer)
 	{
@@ -167,7 +244,7 @@ modded class PlayerBase
 		#ifdef SERVER
 		ZenPerkPlus_UpdateDriverDistance(deltaTime);
 		ZenPerkPlus_UpdateShock(deltaTime);
-		ZenPerkPlus_UpdateAIContact(deltaTime);
+		ZenPerkPlus_UpdateRadioPresence(deltaTime);
 		#endif
 	}
 
@@ -185,64 +262,35 @@ modded class PlayerBase
 		AddHealth("", "Shock", per * deltaTime);
 	}
 
-	void ZenPerkPlus_UpdateAIContact(float deltaTime)
+	void ZenPerkPlus_UpdateRadioPresence(float deltaTime)
 	{
 		m_ZenPerkPlusContactScan -= deltaTime;
 		if (m_ZenPerkPlusContactScan > 0)
 			return;
+		m_ZenPerkPlusContactScan = 3;
 		ZenPerkPlus cfg = GetZenPerkPlusConfig();
-		if (!cfg || !cfg.EnableCombatOpsSkill || !cfg.EnableAIContactPing)
-		{
-			m_ZenPerkPlusContactScan = 8;
+		if (!cfg || !cfg.EnableCombatOpsSkill || !cfg.EnableCombatRadioStatic || !cfg.EnableAIContactPing)
 			return;
-		}
-		float ghost = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_GHOST_PACE);
-		float step = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_LIGHT_STEP);
-		if (ghost <= 0 && step <= 0)
-		{
-			m_ZenPerkPlusContactScan = 6;
+		if (GetZenPerkReward(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_RADIO_DISCIPLINE) <= 0)
 			return;
-		}
+		if (!ZenPerkPlusHelpers.CanReceiveCombatRadio(this))
+			return;
 		float range = cfg.AIContactPingRangeMeters;
 		if (range <= 0)
-			range = 45;
-		range = Math.Clamp(range * (0.55 + ghost + step * 0.35), 12, 75);
-		array<Object> objs = new array<Object>;
-		array<CargoBase> cargos = new array<CargoBase>;
-		g_Game.GetObjectsAtPosition3D(GetPosition(), range, objs, cargos);
-		Object nearest;
-		float best = range + 1;
-		int checked = 0;
-		foreach (Object obj : objs)
-		{
-			checked++;
-			if (checked > 80)
-				break;
-			if (!ZenPerkPlusHelpers.IsTrackedHostileAI(obj, this))
-				continue;
-			EntityAI ent = EntityAI.Cast(obj);
-			if (!ent || !ent.IsAlive())
-				continue;
-			float dist = vector.Distance(GetPosition(), obj.GetPosition());
-			if (dist < best)
-			{
-				best = dist;
-				nearest = obj;
-			}
-		}
+			range = 80;
+		float pct = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_RADIO_DISCIPLINE);
+		range = Math.Clamp(range * (1.0 + pct), 20, 150);
+		bool isPlayer;
+		if (!ZenPerkPlusRadioWatch.NearestInRange(this, range, isPlayer))
+			return;
 		float cd = cfg.AIContactPingCooldownSeconds;
 		if (cd < 8)
-			cd = 22;
+			cd = 40;
 		m_ZenPerkPlusContactScan = cd;
-		if (!nearest)
-			return;
-		string bucket = "Far";
-		if (best < 15)
-			bucket = "Close";
-		else if (best < 32)
-			bucket = "Near";
-		string bearing = ZenPerkPlusHelpers.RoughBearing(this, nearest.GetPosition());
-		ZenPerkPlusHelpers.Notify(this, "Contact", bucket + " hostile " + bearing + ".");
+		if (isPlayer)
+			ZenPerkPlusHelpers.Notify(this, "Radio", "Signal spike. Someone is close.");
+		else
+			ZenPerkPlusHelpers.Notify(this, "Radio", "Weak hostile chatter nearby.");
 	}
 
 	void ZenPerkPlus_UpdateDriverDistance(float deltaTime)
@@ -283,6 +331,20 @@ modded class PlayerBase
 
 modded class ZombieBase
 {
+	override void EEInit()
+	{
+		super.EEInit();
+		if (GetGame().IsServer())
+			ZenPerkPlusRadioWatch.Register(this);
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		if (GetGame().IsServer())
+			ZenPerkPlusRadioWatch.Unregister(this);
+		super.EEDelete(parent);
+	}
+
 	override void EEKilledZen(notnull Object killer)
 	{
 		super.EEKilledZen(killer);

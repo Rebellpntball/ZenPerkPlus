@@ -160,7 +160,7 @@ class ZenPerkPlus: ZenConfigBase
 		CombatRadioRequiresPoweredRadio = true;
 		CombatRadioRangeMeters = 300;
 		CombatRadioCooldownSeconds = 180;
-		CombatRadioDetectPlayers = false;
+		CombatRadioDetectPlayers = true;
 		CombatRadioDetectExpansionAI = true;
 		CombatRadioWorkStartEXP = 5;
 		CombatRadioWorkStopEXP = 1;
@@ -202,8 +202,8 @@ class ZenPerkPlus: ZenConfigBase
 		EnableStayWithMe = true;
 		MedicShockPerSecond = 1.25;
 		EnableAIContactPing = true;
-		AIContactPingRangeMeters = 45;
-		AIContactPingCooldownSeconds = 22;
+		AIContactPingRangeMeters = 80;
+		AIContactPingCooldownSeconds = 40;
 		FuelSaveMaxFraction = 0.18;
 		BatteryCareEnergyPerSecond = 0.35;
 		DriverRepairEXP = 10;

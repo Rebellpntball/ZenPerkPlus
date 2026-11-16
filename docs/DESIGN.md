@@ -72,7 +72,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 - Double-jump / unlimited sprint
 - Damage multipliers that break vanilla guns
 - Engineer as a fourth tree
-- Skeleton ESP, dead-AI skulls, sonar canvas (that stays on the glasses item mod)
+- Skeleton ESP, bearings, distance numbers, or a glasses overlay
 - Animals hard-ignoring the player (Light Step only cuts noise, Terje-style)
 - Vehicle speed / grip boosts (flags stay off; they desync)
 - Auto sidearm swap and free ammo
@@ -84,7 +84,8 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Shot / firearm kill EXP | `Weapon_Base.EEFired`, kill handler |
 | Fewer jams, slower wear | `GetChanceToJam`, small durability refund |
 | Sidearm ping | Only when the perk is owned **and** the gun is dry |
-| Kill EXP + radio static | Player / infected / animal / Expansion AI `EEKilledZen`, powered radio |
+| Kill EXP | Player / infected / animal / Expansion AI `EEKilledZen` |
+| Radio static | Powered radio + Radio Discipline. Vague line when a player or AI survivor is inside the perk range. No direction. Infected do not trip it. |
 | Scout stamina | `DepleteStaminaEx` drain cut + short post-kill return |
 | Faster bandages | `ActionBandageSelfCB` / `TargetCB` |
 | Drive distance EXP | Driver seat distance accumulator |
@@ -96,7 +97,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Fuel / battery | Refund a slice of fuel burned; trickle battery energy |
 | Engine repair EXP | `ActionRepairCarEngine` |
 | Deadeye | Shallow ADS zoom while holding zoom. Not a scope. |
-| AI contact | Scout text ping (ahead/behind/side, close/near/far). No wallhack. |
+| Radio static | Living players and eAI only. "Signal spike" or "hostile chatter". No compass. |
 
 ## Implementation status
 
@@ -111,5 +112,5 @@ Aligned to ZenSkills **main `c1a9255` (2026-06-04)**. No newer ZenSkills commit 
 | Jam, wear, stamina, bandage, crash, radio, distance EXP | Done |
 | Animal kill EXP | Done |
 | Custom perk art | Optional (`UseCustomPerkIcons`) |
-| Sway, recoil, noise, shock, splint, fuel, battery, repair EXP, deadeye zoom, AI contact ping | Done, capped |
+| Sway, recoil, noise, shock, splint, fuel, battery, repair EXP, deadeye zoom, radio presence static | Done, capped |
 | Skeleton ESP / vehicle speed / auto-swap / free ammo | Not in this mod |

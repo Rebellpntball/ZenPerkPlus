@@ -7,7 +7,7 @@ Adds three **Zen-style** skill trees. Progression (EXP spend, max perks, reset, 
 | Role | Skill key | Focus |
 |------|-----------|--------|
 | **Gunner** | `firearms` | Less sway/recoil, fewer jams, dry-mag sidearm ping, shallow Deadeye zoom |
-| **Operator** | `combat_ops` | Stamina, quieter steps, faster bandage/splint, shock regen, radio, short AI contact callout |
+| **Operator** | `combat_ops` | Stamina, quieter steps, faster bandage/splint, shock regen, radio static when a player or AI is nearby |
 | **Wheelman** | `driver` | Distance EXP, crash control, fuel/battery, engine repair EXP |
 
 ## Requirements
@@ -30,9 +30,9 @@ Unlock/reset use `RPC_ServerReceive_PerkUnlock` / `PerkReset`. The PerkPlus menu
 
 `profiles/ZenPerkPlus/` (synced). New: `UseCustomPerkIcons` (default false).
 
-Effect magnitudes live here (sway, recoil, noise, shock, fuel, contact range). EXP **cost** stays in ZenSkills JSON.
+Effect magnitudes live here. EXP **cost** stays in ZenSkills JSON.
 
-AI contact is a scout sentence (`Close hostile ahead`), gated by Light Step or Ghost Pace. It is not the glasses skeleton ESP. Vehicle speed boost stays off.
+Radio static needs the Radio Discipline perk and a powered radio. It says someone or hostile chatter is close. No direction, no distance, no infected. `CombatRadioDetectPlayers` and `CombatRadioDetectExpansionAI` toggle who counts. Presence range/cooldown are `AIContactPingRangeMeters` (80) and `AIContactPingCooldownSeconds` (40). If an older profile JSON already exists, set those by hand. Vehicle speed boost stays off.
 
 ## Data
 

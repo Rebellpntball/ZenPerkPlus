@@ -336,46 +336,4 @@ class ZenPerkPlusHelpers
 			cap = 0.35;
 		return Math.Clamp(soft * 0.8 + getaway * 0.45, 0, cap);
 	}
-
-	static bool IsTrackedHostileAI(Object obj, PlayerBase self)
-	{
-		if (!obj || obj == self)
-			return false;
-		if (obj.IsInherited(ZombieBase))
-			return false;
-		string typeName = obj.GetType();
-		typeName.ToLower();
-		if (typeName.Contains("zmb") || typeName.Contains("zombie") || typeName.Contains("infected"))
-			return false;
-		#ifdef EXPANSIONMODAI
-		if (obj.IsInherited(eAIBase))
-			return true;
-		#endif
-		if (typeName.Contains("eai") || typeName.Contains("expansionai") || typeName.Contains("aibandit") || typeName.Contains("ai_bandit") || typeName.Contains("banditai"))
-			return true;
-		PlayerBase pb = PlayerBase.Cast(obj);
-		if (pb && pb.IsAlive() && !pb.GetIdentity())
-			return true;
-		return false;
-	}
-
-	static string RoughBearing(PlayerBase player, vector targetPos)
-	{
-		if (!player)
-			return "nearby";
-		vector dir = targetPos - player.GetPosition();
-		dir[1] = 0;
-		vector fwd = player.GetDirection();
-		fwd[1] = 0;
-		float dlen = dir.Length();
-		float flen = fwd.Length();
-		if (dlen < 0.01 || flen < 0.01)
-			return "nearby";
-		float dot = vector.Dot(dir * (1.0 / dlen), fwd * (1.0 / flen));
-		if (dot > 0.45)
-			return "ahead";
-		if (dot < -0.45)
-			return "behind";
-		return "to the side";
-	}
 }
