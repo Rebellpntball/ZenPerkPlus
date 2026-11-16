@@ -72,7 +72,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 - Double-jump / unlimited sprint
 - Damage multipliers that break vanilla guns
 - Engineer as a fourth tree
-- Skeleton ESP, bearings, distance numbers, or a glasses overlay
+- Skeleton ESP, range numbers, or a glasses overlay
 - Animals hard-ignoring the player (Light Step only cuts noise, Terje-style)
 - Vehicle speed / grip boosts (flags stay off; they desync)
 - Auto sidearm swap and free ammo
@@ -97,7 +97,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Fuel / battery | Refund a slice of fuel burned; trickle battery energy |
 | Engine repair EXP | `ActionRepairCarEngine` |
 | Deadeye | Shallow ADS zoom while holding zoom. Not a scope. |
-| Radio static | Living players and eAI only. "Signal spike" or "hostile chatter". No compass. |
+| Radio static | Living players and eAI only. Vague line, plus an amber vanilla hit-splash aimed at them. No range number. |
 
 ## Implementation status
 

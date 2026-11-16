@@ -9,6 +9,25 @@ modded class MissionGameplay
 			return;
 
 		ZenPerkPlus_UpdateInput();
+		ZenPerkPlus_UpdateRadioGlow();
+	}
+
+	void ZenPerkPlus_UpdateRadioGlow()
+	{
+		if (!g_Game.IsClient())
+			return;
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+		if (!player)
+			return;
+		float dir;
+		float intensity;
+		if (!player.ZenPerkPlus_ConsumeRadioGlow(dir, intensity))
+			return;
+		Hud hud = GetHud();
+		if (!hud)
+			return;
+		HitDirectionEffectBase.s_ZPP_QueueAmber = true;
+		hud.SpawnHitDirEffect(player, dir, intensity);
 	}
 
 	void ZenPerkPlus_UpdateInput()

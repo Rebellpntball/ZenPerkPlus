@@ -32,7 +32,7 @@ Unlock/reset use `RPC_ServerReceive_PerkUnlock` / `PerkReset`. The PerkPlus menu
 
 Effect magnitudes live here. EXP **cost** stays in ZenSkills JSON.
 
-Radio static needs the Radio Discipline perk and a powered radio. It says someone or hostile chatter is close. No direction, no distance, no infected. `CombatRadioDetectPlayers` and `CombatRadioDetectExpansionAI` toggle who counts. Presence range/cooldown are `AIContactPingRangeMeters` (80) and `AIContactPingCooldownSeconds` (40). If an older profile JSON already exists, set those by hand. Vehicle speed boost stays off.
+Radio static needs the Radio Discipline perk and a powered radio. The line stays vague. While someone is inside the range, the vanilla hit-direction splash pulses amber toward them (`EnableRadioDirectionGlow`). No distance, no infected. `CombatRadioDetectPlayers` and `CombatRadioDetectExpansionAI` toggle who counts. If an older profile JSON already exists, add `EnableRadioDirectionGlow`: true. Vehicle speed boost stays off.
 
 ## Data
 

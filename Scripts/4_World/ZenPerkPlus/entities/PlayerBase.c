@@ -1,6 +1,11 @@
+class ZenPerkPlusRPC
+{
+	static const int RADIO_GLOW = 47823101;
+}
+
 // Same idea as a proximity radio: track living PlayerBase (real players and eAI).
 // Infected and animals are not PlayerBase, so they never trip the static.
-// Only a vague line is sent. Never a position, range number, or direction.
+// Text stays vague. The amber mark reuses the vanilla hit-direction splash.
 class ZenPerkPlusRadioWatch
 {
 	protected static ref array<PlayerBase> s_Men;
@@ -22,9 +27,11 @@ class ZenPerkPlusRadioWatch
 			s_Men.Remove(idx);
 	}
 
-	static bool NearestInRange(PlayerBase owner, float range, out bool outIsPlayer)
+	static bool NearestInRange(PlayerBase owner, float range, out bool outIsPlayer, out vector outPos, out float outDist)
 	{
 		outIsPlayer = false;
+		outPos = vector.Zero;
+		outDist = -1;
 		if (!s_Men || !owner || range <= 0)
 			return false;
 		ZenPerkPlus cfg = GetZenPerkPlusConfig();
@@ -54,8 +61,11 @@ class ZenPerkPlusRadioWatch
 				best = d2;
 				found = true;
 				outIsPlayer = isPlayer;
+				outPos = man.GetPosition();
 			}
 		}
+		if (found)
+			outDist = Math.Sqrt(best);
 		return found;
 	}
 }
@@ -155,6 +165,9 @@ modded class PlayerBase
 	protected vector m_ZenPerkPlusLastDrivePos;
 	protected float m_ZenPerkPlusDriveAccumMeters;
 	protected float m_ZenPerkPlusContactScan;
+	protected bool m_ZPP_GlowPending;
+	protected float m_ZPP_GlowDir;
+	protected float m_ZPP_GlowIntensity;
 
 	override void EEInit()
 	{
@@ -168,6 +181,31 @@ modded class PlayerBase
 		if (GetGame().IsServer())
 			ZenPerkPlusRadioWatch.Unregister(this);
 		super.EEDelete(parent);
+	}
+
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(sender, rpc_type, ctx);
+		if (rpc_type != ZenPerkPlusRPC.RADIO_GLOW)
+			return;
+		if (!g_Game || !g_Game.IsClient())
+			return;
+		Param2<float, float> payload = new Param2<float, float>(0, 0);
+		if (!ctx.Read(payload))
+			return;
+		m_ZPP_GlowDir = payload.param1;
+		m_ZPP_GlowIntensity = payload.param2;
+		m_ZPP_GlowPending = true;
+	}
+
+	bool ZenPerkPlus_ConsumeRadioGlow(out float dir, out float intensity)
+	{
+		if (!m_ZPP_GlowPending)
+			return false;
+		m_ZPP_GlowPending = false;
+		dir = m_ZPP_GlowDir;
+		intensity = m_ZPP_GlowIntensity;
+		return true;
 	}
 
 	override void EEKilledZen(notnull Object killer)
@@ -281,16 +319,47 @@ modded class PlayerBase
 		float pct = GetZenPerkRewardPercent01(ZenPerkPlusSkills.COMBAT_OPS, ZenPerkPlusPerks.COMBAT_RADIO_DISCIPLINE);
 		range = Math.Clamp(range * (1.0 + pct), 20, 150);
 		bool isPlayer;
-		if (!ZenPerkPlusRadioWatch.NearestInRange(this, range, isPlayer))
+		vector nearestPos;
+		float nearestDist;
+		if (!ZenPerkPlusRadioWatch.NearestInRange(this, range, isPlayer, nearestPos, nearestDist))
 			return;
+		if (cfg.EnableRadioDirectionGlow)
+		{
+			float closeness = 0;
+			if (range > 0 && nearestDist >= 0)
+				closeness = 1.0 - (nearestDist / range);
+			float intensity = Math.Clamp(0.65 + closeness * 0.35, 0.65, 1.0);
+			ZenPerkPlus_PushRadioGlow(ZenPerkPlus_RelativeYaw(nearestPos), intensity);
+		}
+		float now = g_Game.GetTime() * 0.001;
 		float cd = cfg.AIContactPingCooldownSeconds;
 		if (cd < 8)
 			cd = 40;
-		m_ZenPerkPlusContactScan = cd;
+		if (now - m_ZenPerkPlusLastCombatRadioTime < cd)
+			return;
+		m_ZenPerkPlusLastCombatRadioTime = now;
 		if (isPlayer)
 			ZenPerkPlusHelpers.Notify(this, "Radio", "Signal spike. Someone is close.");
 		else
 			ZenPerkPlusHelpers.Notify(this, "Radio", "Weak hostile chatter nearby.");
+	}
+
+	float ZenPerkPlus_RelativeYaw(vector targetPos)
+	{
+		vector dir = targetPos - GetPosition();
+		dir[1] = 0;
+		if (dir.LengthSq() < 0.25)
+			return 0;
+		float rel = Math.NormalizeAngle(dir.VectorToAngles()[0] - GetOrientation()[0]);
+		return Math.NormalizeAngle(rel + Math.RandomFloatInclusive(-12, 12));
+	}
+
+	void ZenPerkPlus_PushRadioGlow(float relYaw, float intensity)
+	{
+		if (!GetIdentity())
+			return;
+		Param2<float, float> payload = new Param2<float, float>(relYaw, intensity);
+		g_Game.RPCSingleParam(this, ZenPerkPlusRPC.RADIO_GLOW, payload, true, GetIdentity());
 	}
 
 	void ZenPerkPlus_UpdateDriverDistance(float deltaTime)
@@ -343,6 +412,31 @@ modded class ZombieBase
 		if (GetGame().IsServer())
 			ZenPerkPlusRadioWatch.Unregister(this);
 		super.EEDelete(parent);
+	}
+
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(sender, rpc_type, ctx);
+		if (rpc_type != ZenPerkPlusRPC.RADIO_GLOW)
+			return;
+		if (!g_Game || !g_Game.IsClient())
+			return;
+		Param2<float, float> payload = new Param2<float, float>(0, 0);
+		if (!ctx.Read(payload))
+			return;
+		m_ZPP_GlowDir = payload.param1;
+		m_ZPP_GlowIntensity = payload.param2;
+		m_ZPP_GlowPending = true;
+	}
+
+	bool ZenPerkPlus_ConsumeRadioGlow(out float dir, out float intensity)
+	{
+		if (!m_ZPP_GlowPending)
+			return false;
+		m_ZPP_GlowPending = false;
+		dir = m_ZPP_GlowDir;
+		intensity = m_ZPP_GlowIntensity;
+		return true;
 	}
 
 	override void EEKilledZen(notnull Object killer)
