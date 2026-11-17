@@ -8,11 +8,11 @@ Adds three **Zen-style** skill trees. Progression (EXP spend, max perks, reset, 
 |------|-----------|--------|
 | **Gunner** | `firearms` | Less sway/recoil, fewer jams, dry-mag sidearm ping, shallow Deadeye zoom |
 | **Operator** | `combat_ops` | Stamina, quieter steps, faster bandage/splint, shock regen, radio static when a player or AI is nearby |
-| **Wheelman** | `driver` | Distance EXP, crash control, fuel/battery, engine repair EXP |
+| **Wheelman** | `driver` | Distance EXP, crash control, fuel/battery on cars and 1.30 motorbikes, engine repair EXP |
 
 ## Requirements
 
-- DayZ 1.29+
+- DayZ 1.30 (scripts 1.30.164289)
 - **ZenModCore** + **ZenSkills** (requiredAddons)
 - Optional: Expansion AI (`EXPANSIONMODAI`)
 

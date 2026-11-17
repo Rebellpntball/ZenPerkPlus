@@ -88,7 +88,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Radio static | Powered radio + Radio Discipline. Vague line when a player or AI survivor is inside the perk range. No direction. Infected do not trip it. |
 | Scout stamina | `DepleteStaminaEx` drain cut + short post-kill return |
 | Faster bandages | `ActionBandageSelfCB` / `TargetCB` |
-| Drive distance EXP | Driver seat distance accumulator |
+| Drive distance EXP | Driver seat distance on CarScript and MotorbikeScript |
 | Softer crashes | Vehicle HP refund + Soft Hands health refund on crash ammo |
 | Less sway / recoil | Aim filter offsets + `RecoilBase.Update`, capped |
 | Quieter steps | `AddNoise` multiplier (infected/animals hear less, they still see you) |
@@ -101,7 +101,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 
 ## Implementation status
 
-Aligned to ZenSkills **main `c1a9255` (2026-06-04)**. No newer ZenSkills commit since that.
+Aligned to DayZ scripts **1.30.164289** (DayZ-Script-Diff `78be1c402e`, 2026-11-03) and ZenSkills **main `c1a9255` (2026-06-04)**. No newer ZenSkills commit.
 
 | Piece | Status |
 |-------|--------|

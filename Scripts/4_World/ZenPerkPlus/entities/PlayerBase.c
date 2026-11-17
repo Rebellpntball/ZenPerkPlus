@@ -378,13 +378,16 @@ modded class PlayerBase
 		if (!cfg || !cfg.EnableDriverSkill || !cfg.EnableDriverEXP)
 			return;
 		HumanCommandVehicle hcv = GetCommand_Vehicle();
-		if (!hcv || !hcv.GetTransport())
+		Transport trans = null;
+		if (hcv)
+			trans = hcv.GetTransport();
+		if (!trans)
 		{
 			m_ZenPerkPlusLastDrivePos = vector.Zero;
 			return;
 		}
-		CarScript car = CarScript.Cast(hcv.GetTransport());
-		if (!car)
+		// 1.30 bikes are MotorbikeScript, not CarScript. Boats stay out.
+		if (!CarScript.Cast(trans) && !MotorbikeScript.Cast(trans))
 			return;
 		vector pos = GetPosition();
 		if (m_ZenPerkPlusLastDrivePos == vector.Zero)
@@ -410,45 +413,6 @@ modded class PlayerBase
 
 modded class ZombieBase
 {
-	override void EEInit()
-	{
-		super.EEInit();
-		if (GetGame().IsServer())
-			ZenPerkPlusRadioWatch.Register(this);
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		if (GetGame().IsServer())
-			ZenPerkPlusRadioWatch.Unregister(this);
-		super.EEDelete(parent);
-	}
-
-	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
-		super.OnRPC(sender, rpc_type, ctx);
-		if (rpc_type != ZenPerkPlusRPC.RADIO_GLOW)
-			return;
-		if (!g_Game || !g_Game.IsClient())
-			return;
-		Param2<float, float> payload = new Param2<float, float>(0, 0);
-		if (!ctx.Read(payload))
-			return;
-		m_ZPP_GlowDir = payload.param1;
-		m_ZPP_GlowIntensity = payload.param2;
-		m_ZPP_GlowPending = true;
-	}
-
-	bool ZenPerkPlus_ConsumeRadioGlow(out float dir, out float intensity)
-	{
-		if (!m_ZPP_GlowPending)
-			return false;
-		m_ZPP_GlowPending = false;
-		dir = m_ZPP_GlowDir;
-		intensity = m_ZPP_GlowIntensity;
-		return true;
-	}
-
 	override void EEKilledZen(notnull Object killer)
 	{
 		super.EEKilledZen(killer);
