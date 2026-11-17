@@ -28,9 +28,7 @@ modded class MissionGameplay
 		Hud hud = GetHud();
 		if (!hud)
 			return;
-		ZenPerkPlus cfg = GetZenPerkPlusConfig();
-		if (cfg)
-			HitDirectionEffectBase.ZenPerkPlus_QueueColor(cfg.RadioGlowColor);
+		HitDirectionEffectBase.ZenPerkPlus_QueueAmber();
 		hud.SpawnHitDirEffect(player, dir, intensity);
 	}
 

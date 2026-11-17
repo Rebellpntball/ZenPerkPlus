@@ -32,7 +32,7 @@ Unlock/reset use `RPC_ServerReceive_PerkUnlock` / `PerkReset`. The PerkPlus menu
 
 Effect magnitudes live here. EXP **cost** stays in ZenSkills JSON.
 
-Radio static needs the Radio Discipline perk and a powered radio. The line stays vague. While someone is inside the range, the client calls the same `SpawnHitDirEffect` a bullet uses. Look comes from `cfggameplay.json` `HitIndicationData`: behaviour (0 off, 1 static, 2 dynamic), style (0 splash, 1 spike, 2 arrow), `hitDirectionIndicatorColorStr`, duration, and scatter. Leave `RadioGlowColor` empty to use that color. Set it to `0xffffa820` if the radio pulse should be amber and bullet hits stay on the cfg color. `hitDirectionOverrideEnabled` must be 1 or the game keeps its defaults. No distance, no infected. Vehicle speed boost stays off.
+Radio static is Operator only (Radio Discipline + powered radio). The line stays vague. The direction mark is the vanilla hit indicator, always amber. Style, scatter, duration, and static/dynamic still come from `cfggameplay.json` `HitIndicationData`. Bullet hits stay the cfg color. This is not the Hunting tree. No distance, no infected. Vehicle speed boost stays off.
 
 ZenSkills source checked: [ZenarchistCode/ZenSkills](https://github.com/ZenarchistCode/ZenSkills) `main` is still `c1a9255` (2026-06-04). No newer commit.
 

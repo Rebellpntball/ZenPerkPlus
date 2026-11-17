@@ -79,7 +79,7 @@ modded class ZenSkillsConfig
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_2_1, new ZenPerkDef("Light Step", "Scout: quieter movement / slightly lower infected notice.", "%", 5, 10, 15));
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_2_2, new ZenPerkDef("Field Splint", "Field Medic: faster splint and limb care.", "%", 5, 10, 15));
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_3_1, new ZenPerkDef("Long Push", "Scout: sprint drains slower briefly after combat or radio.", "%", 5, 10, 15));
-		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_3_2, new ZenPerkDef("Radio Discipline", "Shared: powered radios can give vague combat static warnings.", "%", 5, 10, 15));
+		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_3_2, new ZenPerkDef("Radio Discipline", "Shared: powered radio gives vague static plus an amber direction pulse.", "%", 5, 10, 15));
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_3_3, new ZenPerkDef("Stay With Me", "Field Medic: mild shock / recovery support.", "%", 5, 10, 15));
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_4_1, new ZenPerkDef("Ghost Pace", "Scout signature: strong post-fight stamina recovery (not infinite sprint).", "%", 8, 12, 18));
 		ZenPerkPlus_EnsurePerk(skill, ZenPerkPlusSlots.SLOT_4_2, new ZenPerkDef("Combat Medic", "Field Medic signature: faster core patch-up under pressure.", "%", 8, 12, 18));
