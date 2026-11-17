@@ -92,6 +92,7 @@ class ZenPerkPlus: ZenConfigBase
 	float MedicShockPerSecond;
 	bool EnableAIContactPing;
 	bool EnableRadioDirectionGlow;
+	string RadioGlowColor;
 	float AIContactPingRangeMeters;
 	float AIContactPingCooldownSeconds;
 	float FuelSaveMaxFraction;
@@ -204,6 +205,7 @@ class ZenPerkPlus: ZenConfigBase
 		MedicShockPerSecond = 1.25;
 		EnableAIContactPing = true;
 		EnableRadioDirectionGlow = true;
+		RadioGlowColor = "";
 		AIContactPingRangeMeters = 80;
 		AIContactPingCooldownSeconds = 40;
 		FuelSaveMaxFraction = 0.18;

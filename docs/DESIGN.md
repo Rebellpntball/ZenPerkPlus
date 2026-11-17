@@ -97,7 +97,7 @@ Linear: Training → Soft Hands / Road Sense → Iron Chassis / Fuel Saver → C
 | Fuel / battery | Refund a slice of fuel burned; trickle battery energy |
 | Engine repair EXP | `ActionRepairCarEngine` |
 | Deadeye | Shallow ADS zoom while holding zoom. Not a scope. |
-| Radio static | Living players and eAI only. Vague line, plus an amber vanilla hit-splash aimed at them. No range number. |
+| Radio static | Living players and eAI only. Vague line, plus the vanilla hit indicator (cfg color, style, scatter, duration). No range number. |
 
 ## Implementation status
 

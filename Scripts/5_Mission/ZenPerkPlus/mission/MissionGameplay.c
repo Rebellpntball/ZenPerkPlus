@@ -23,10 +23,14 @@ modded class MissionGameplay
 		float intensity;
 		if (!player.ZenPerkPlus_ConsumeRadioGlow(dir, intensity))
 			return;
+		if (!HitDirectionEffectBase.ZenPerkPlus_IndicatorsOn())
+			return;
 		Hud hud = GetHud();
 		if (!hud)
 			return;
-		HitDirectionEffectBase.s_ZPP_QueueAmber = true;
+		ZenPerkPlus cfg = GetZenPerkPlusConfig();
+		if (cfg)
+			HitDirectionEffectBase.ZenPerkPlus_QueueColor(cfg.RadioGlowColor);
 		hud.SpawnHitDirEffect(player, dir, intensity);
 	}
 

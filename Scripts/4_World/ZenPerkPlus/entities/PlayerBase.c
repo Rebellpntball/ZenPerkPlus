@@ -344,14 +344,24 @@ modded class PlayerBase
 			ZenPerkPlusHelpers.Notify(this, "Radio", "Weak hostile chatter nearby.");
 	}
 
+	// Same signed degrees vanilla stores on a hit (see DayZInfected.ComputeHitDirectionAngle).
+	// Scatter is applied later by HitDirectionEffectBase from cfggameplay.json.
 	float ZenPerkPlus_RelativeYaw(vector targetPos)
 	{
-		vector dir = targetPos - GetPosition();
-		dir[1] = 0;
-		if (dir.LengthSq() < 0.25)
+		vector forward = GetDirection();
+		vector toTarget = targetPos - GetPosition();
+		forward[1] = 0;
+		toTarget[1] = 0;
+		if (toTarget.LengthSq() < 0.25)
 			return 0;
-		float rel = Math.NormalizeAngle(dir.VectorToAngles()[0] - GetOrientation()[0]);
-		return Math.NormalizeAngle(rel + Math.RandomFloatInclusive(-12, 12));
+		forward.Normalize();
+		toTarget.Normalize();
+		float cosFi = Math.Clamp(vector.Dot(forward, toTarget), -1, 1);
+		vector cross = forward * toTarget;
+		float dirAngle = Math.Acos(cosFi) * Math.RAD2DEG;
+		if (cross[1] < 0)
+			dirAngle = -dirAngle;
+		return dirAngle;
 	}
 
 	void ZenPerkPlus_PushRadioGlow(float relYaw, float intensity)
